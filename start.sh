@@ -7,3 +7,4 @@ docker compose up -d
 
 # Back en (si quieres probar directo):
 # http://localhost:3000
+
