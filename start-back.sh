@@ -1,3 +1,3 @@
 cd Back
-npm ci
+npm i
 npm run dev

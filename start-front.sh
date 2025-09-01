@@ -1,3 +1,3 @@
 cd Front
-npm ci
+npm i
 ng s
