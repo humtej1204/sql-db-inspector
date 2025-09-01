@@ -1,0 +1,151 @@
+{
+  "entity": {
+    "common": {
+      "error": {
+        "invalid": "Valor inválido para: {{value}}",
+        "notFound": "{{value}} no fue encontrado",
+        "notModified": "{{value}} no fue actualizado",
+        "notCreated": "{{value}} no fue creado",
+        "notDeleted": "{{value}} no fue eliminado",
+        "unauthorized": "Clave de API inválida",
+        "propertyWrong": "La propiedad {{property}} ha sido enviada incorrectamente",
+        "validator": {
+          "type": "El cuerpo debe ser un objeto con las propiedades correctas. Por favor, revisa la documentación.",
+          "fields": {},
+          "required": {},
+          "additionalProperties": "El objeto contiene propiedades adicionales que no están permitidas"
+        }
+      }
+    }
+  },
+  "services": {
+    "redis": {
+      "common": {
+        "error": {
+          "notFound": "No se encontró la clave {{key}}",
+          "invalidValue": "El valor enviado no es válido",
+          "invalidKey": "La clave enviada no es válida",
+          "invalidTtl": "El ttl enviado no es válido",
+          "create": "No se pudo guardar la clave {{key}} en Redis. Respuesta: {{response}}",
+          "validator": {
+            "type": "El cuerpo debe ser un objeto con las propiedades correctas. Por favor, revisa la documentación.",
+            "fields": {},
+            "required": {
+              "key": "La clave es obligatoria",
+              "value": "El valor es obligatorio"
+            },
+            "additionalProperties": "El objeto contiene propiedades adicionales que no están permitidas"
+          }
+        }
+      }
+    },
+    "logger": {
+      "error": {
+        "notFound": "{{value}} no encontrado"
+      }
+    }
+  },
+  "entityComplextName": {
+    "document": {
+      "error": {
+        "noTypeSended": "No se envió el tipo de documento"
+      }
+    },
+    "common": {
+      "error": {}
+    }
+  },
+  "entityMysqlTest": {
+    "request": {
+      "createEntityMysqlTest": {
+        "errorMessage": {
+          "email": {
+            "type": "El campo 'email' debe ser una cadena de texto",
+            "format": "El campo 'email' debe ser una dirección de correo válida"
+          },
+          "firstname": {
+            "type": "El campo 'firstname' debe ser una cadena de texto"
+          },
+          "lastname": {
+            "type": "El campo 'lastname' debe ser una cadena de texto"
+          }
+        },
+        "required": {
+          "email": "El campo 'email' es obligatorio",
+          "firstname": "El campo 'firstname' es obligatorio",
+          "lastname": "El campo 'lastname' es obligatorio"
+        }
+      },
+      "updateEntityMysqlTest": {
+        "errorMessage": {
+          "email": {
+            "type": "El campo 'email' debe ser una cadena de texto",
+            "format": "El campo 'email' debe ser una dirección de correo válida"
+          },
+          "firstname": {
+            "type": "El campo 'firstname' debe ser una cadena de texto"
+          },
+          "lastname": {
+            "type": "El campo 'lastname' debe ser una cadena de texto"
+          }
+        }
+      }
+    }
+  },
+  "entityRedisTest": {
+    "request": {
+      "saveCache": {
+        "errorMessage": {
+          "key": {
+            "type": "El campo 'key' debe ser una cadena de texto"
+          },
+          "value": {
+            "type": "El campo 'value' debe ser una cadena de texto"
+          },
+          "ttl": {
+            "type": "El campo 'ttl' debe ser un número entero"
+          }
+        },
+        "required": {
+          "key": "El campo 'key' es obligatorio",
+          "value": "El campo 'value' es obligatorio"
+        }
+      },
+      "updateCache": {
+        "errorMessage": {
+          "key": {
+            "type": "El campo 'key' debe ser una cadena de texto"
+          },
+          "value": {
+            "type": "El campo 'value' debe ser una cadena de texto"
+          }
+        },
+        "required": {
+          "key": "El campo 'key' es obligatorio",
+          "value": "El campo 'value' es obligatorio"
+        }
+      }
+    }
+  },
+  "other": {
+    "decorators": {
+      "events": {
+        "logs": {
+          "originalMethod": ""
+        },
+        "error": {
+          "login": "",
+          "logout": ""
+        }
+      }
+    },
+    "methods": {
+      "error": {
+        "createEntityMysqlTest": "Ocurrió un error al crear la entidad",
+        "updateEntityMysqlTest": "Ocurrió un error al actualizar la entidad",
+        "saveCache": "Ocurrió un error al crear la entidad",
+        "updateCache": "Ocurrió un error al actualizar la entidad"
+      }
+    }
+  }
+}

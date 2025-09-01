@@ -1,0 +1,35 @@
+services:
+  back:
+    build:
+      context: ./Back
+      dockerfile: Dockerfile
+    image: mi-back:latest
+    container_name: back
+    ports:
+      - "3000:3000"
+    healthcheck:
+      # Ajusta /health si tu back expone otro endpoint (o quítalo si no lo tienes)
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/v1/health || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 10
+    networks:
+      - appnet
+
+  front:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile
+    image: mi-front:latest
+    container_name: front
+    depends_on:
+      back:
+        condition: service_healthy
+    ports:
+      - "8080:80" # abre http://localhost:8080
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

@@ -1,0 +1,117 @@
+@if (data) {
+<mat-card appearance="outlined" class="info_card">
+  <mat-card-header>
+    <mat-card-title>{{ data.table }}</mat-card-title>
+    <mat-card-subtitle>{{ data.fields.length }} columnas</mat-card-subtitle>
+  </mat-card-header>
+  <br />
+  <mat-card-content>
+    <table mat-table [dataSource]="data.fields">
+      <ng-container matColumnDef="column">
+        <th mat-header-cell *matHeaderCellDef>Columna</th>
+        <td mat-cell *matCellDef="let element">{{ element.column }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element" class="align_end">
+          <div class="tag align_end" style="background-color: #fcf4ff">
+            {{ element.type }}
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<section class="relations_container">
+  <div class="relation_group">
+    <div class="title">
+      <mat-icon
+        fontIcon="help_outline"
+        matTooltip="Muestra las tablas que tienen una FK hacia esta tabla, otras tablas apuntan a esta."
+      />
+      <span>Relaciones salientes:</span>
+    </div>
+
+    @if (data.relationsIncoming.length) {
+    <div class="relation_group_container">
+      @for (item of data.relationsIncoming; track $index) {
+      <div class="relation_item">
+        <table class="table_relations">
+          <tr>
+            <th><mat-icon fontIcon="call_missed_outgoing" /></th>
+            <th align="end">
+              <span class="table_header">{{ item.table }}</span>
+            </th>
+          </tr>
+
+          @for (elem of item.relations; track $index) {
+          <tr>
+            <td>
+              <span class="tag" style="background-color: #effdf5">{{ elem.key }}</span>
+            </td>
+            <td>
+              <span class="tag align_end" style="background-color: #eef4fe">{{
+                elem.foreignKey
+              }}</span>
+            </td>
+          </tr>
+          }
+        </table>
+      </div>
+      }
+    </div>
+    } @else {
+    <p class="no_relations">NO SE ENCONTRARON RELACIONES</p>
+    }
+  </div>
+
+  <div class="relation_group">
+    <div class="title">
+      <mat-icon
+        fontIcon="help_outline"
+        matTooltip="Lista las tablas externas referenciadas por esta tabla, esta tabla apunta a otras."
+      />
+      <span>Relaciones entrantes:</span>
+    </div>
+
+    @if (data.relationsOutgoing.length) {
+    <div class="relation_group_container">
+      @for (item of data.relationsOutgoing; track $index) {
+      <div class="relation_item">
+        <table class="table_relations">
+          <tr>
+            <th><mat-icon fontIcon="call_missed" /></th>
+            <th align="end">
+              <span class="table_header">{{ item.table }}</span>
+            </th>
+          </tr>
+
+          @for (elem of item.relations; track $index) {
+          <tr>
+            <td>
+              <span class="tag" style="background-color: #effdf5">{{ elem.key }}</span>
+            </td>
+            <td>
+              <span class="tag align_end" style="background-color: #eef4fe">{{
+                elem.foreignKey
+              }}</span>
+            </td>
+          </tr>
+          }
+        </table>
+      </div>
+      }
+    </div>
+    } @else {
+    <p class="no_relations">NO SE ENCONTRARON RELACIONES</p>
+    }
+  </div>
+</section>
+} @else {
+<p>NO DATA</p>
+}

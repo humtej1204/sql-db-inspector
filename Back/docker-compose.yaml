@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  ms.service.haru:
+    container_name: ms.service.haru
+    labels:
+      svc: "ms-service-haru"
+    restart: always
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"

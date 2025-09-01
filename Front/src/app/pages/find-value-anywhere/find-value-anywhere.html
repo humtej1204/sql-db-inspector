@@ -1,0 +1,78 @@
+<form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
+  <mat-form-field appearance="outline" class="field">
+    <mat-label>Valor a buscar</mat-label>
+    <input matInput formControlName="value" required />
+    @if (form.controls['value'].hasError('required')) {
+    <mat-error> El valor es obligatorio </mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field">
+    <mat-label>Schema</mat-label>
+    <input matInput formControlName="schema" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field">
+    <mat-label>Modo de búsqueda</mat-label>
+    <mat-select formControlName="searchMode">
+      <mat-option [value]="undefined">—</mat-option>
+      <mat-option value="contains">Contiene</mat-option>
+      <mat-option value="equals">Igual</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button matButton="filled" type="submit" [disabled]="form.invalid || loading()">
+    {{ loading() ? 'Buscando…' : 'Buscar' }}
+  </button>
+</form>
+
+@if (source.length && !loading()) {
+<section class="card_container">
+  @for (item of source; track $index) {
+  <mat-card class="card" appearance="outlined">
+    <mat-card-header>
+      <div class="text">
+        <mat-card-title>{{ item.table }}</mat-card-title>
+        <mat-card-subtitle>Schema: {{ item.schema }}</mat-card-subtitle>
+        <mat-card-subtitle>Tabla: {{ item.table }}</mat-card-subtitle>
+      </div>
+
+      <button
+        class="copy_btn"
+        [cdkCopyToClipboard]="item.name"
+        (cdkCopyToClipboardCopied)="onCopied($event)"
+        matTooltip="Copiar nombre"
+      >
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </mat-card-header>
+
+    <mat-divider />
+
+    <mat-card-content>
+      <p>Columnas con valores coincidientes:</p>
+      <ul>
+        @for (elem of item.columns; track $index) {
+        <li>{{ elem }}</li>
+        }
+      </ul>
+    </mat-card-content>
+  </mat-card>
+  }
+</section>
+} @else {
+<mat-card class="card_empty" appearance="outlined">
+  <mat-card-content>
+    @if (loading()) {
+    <p>Buscando valor en todas las tablas...</p>
+
+    <mat-progress-bar mode="indeterminate" />
+
+    <span>Espere un momento porfavor</span>
+    } @else {
+    <p>No hay elementos para mostrar</p>
+    <span>Haga una nueva busqueda</span>
+    }
+  </mat-card-content>
+</mat-card>
+}
