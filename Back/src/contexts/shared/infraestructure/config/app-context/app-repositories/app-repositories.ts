@@ -12,8 +12,6 @@ export class AppRepositories implements IAppRepositories {
 
   constructor() {
     this.entityMysqlRepository = new EntityMysqlRepository(mysqlDB.db!);
-    this.entitySqlServerRepository = new EntitySqlServerRepository(
-      sqlServerDB.db!
-    );
+    this.entitySqlServerRepository = new EntitySqlServerRepository(sqlServerDB);
   }
 }
