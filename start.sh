@@ -1,7 +1,6 @@
 docker compose build
 docker compose up -d
 
-
 # Front en:
 # http://localhost:8080
 
