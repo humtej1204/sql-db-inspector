@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,12 @@ import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { SqlServerEntityService } from '../../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { TableInfo } from './components/table-info/table-info';
 import { IGetTablesRelationsResponse } from '../../services/app-backend-service/interfaces/response.interface';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MySqlEntityService } from '../../services/app-backend-service/mysql-entity/mysql-entity-service';
+import { ICommonBackendResponse } from '../../services/interfaces/common-backend-response.interface';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-get-tables-relations',
@@ -25,6 +31,9 @@ import { IGetTablesRelationsResponse } from '../../services/app-backend-service/
     MatIconModule,
     MatButtonModule,
     TableInfo,
+    MatSelectModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './get-tables-relations.html',
   styleUrl: './get-tables-relations.scss',
@@ -36,8 +45,12 @@ export class GetTablesRelations implements OnInit {
   protected source = new MatTableDataSource<IGetTablesRelationsResponse>();
   protected expandedElement!: IGetTablesRelationsResponse | null;
   protected showEmptyTables = false;
+  protected loading = signal(false);
 
-  constructor(private readonly appBackendServ: SqlServerEntityService) {}
+  constructor(
+    private readonly sqlServerEntityServ: SqlServerEntityService,
+    private readonly mySqlEntityServ: MySqlEntityService
+  ) {}
 
   getcolumnHeader(column: string) {
     const columnsData: Record<string, string> = {
@@ -50,10 +63,7 @@ export class GetTablesRelations implements OnInit {
   }
 
   ngOnInit(): void {
-    this.appBackendServ.getTablesRelations().subscribe((data) => {
-      this.data = data.data;
-      this.handleShowEmptyTables();
-    });
+    this.getData();
   }
 
   handleShowEmptyTables() {
@@ -72,5 +82,27 @@ export class GetTablesRelations implements OnInit {
 
   toggle(element: IGetTablesRelationsResponse) {
     this.expandedElement = this.isExpanded(element) ? null : element;
+  }
+
+  onDBChange(event: MatSelectChange) {
+    const db = event.value;
+    this.getData(db);
+  }
+
+  getData(db: string = 'boost') {
+    this.loading.set(true);
+    const request: Record<string, any> = {
+      boost: this.sqlServerEntityServ,
+      bare: this.mySqlEntityServ,
+    };
+
+    request[db]
+      .getTablesRelations()
+      .subscribe((data: ICommonBackendResponse<IGetTablesRelationsResponse[]>) => {
+        this.data = data.data;
+        this.handleShowEmptyTables();
+
+        this.loading.set(false);
+      });
   }
 }

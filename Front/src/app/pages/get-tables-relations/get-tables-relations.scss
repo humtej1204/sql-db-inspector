@@ -24,7 +24,8 @@
   background-color: white;
   border-radius: 24px;
   padding: 0 1rem;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-height: 70vh;
   border: 1px solid rgba(#000000, 0.1);
 
@@ -90,5 +91,25 @@
 
   .right_align {
     text-align: end;
+  }
+}
+
+.card_empty {
+  flex: 1;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  p {
+    font-size: 1.2rem;
   }
 }

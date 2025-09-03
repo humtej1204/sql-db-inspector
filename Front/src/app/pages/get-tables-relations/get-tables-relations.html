@@ -3,11 +3,35 @@
     <input matInput (keyup)="applyFilter($event)" placeholder="Busca una tabla" #input />
   </mat-form-field>
 
+  <mat-form-field appearance="outline" class="field form_selected_db">
+    <mat-label>Seleccione DB</mat-label>
+    <mat-select (selectionChange)="onDBChange($event)" value="boost">
+      <mat-option value="boost">Boost - SQL Server</mat-option>
+      <mat-option value="bare">Bare - MySQL</mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <mat-slide-toggle [(ngModel)]="showEmptyTables" (change)="handleShowEmptyTables()">
     Ver tablas vacias
   </mat-slide-toggle>
 </section>
 
+@if (loading()) {
+<mat-card class="card_empty" appearance="outlined">
+  <mat-card-content>
+    @if (loading()) {
+    <p>Buscando valor en todas las tablas...</p>
+
+    <mat-spinner></mat-spinner>
+
+    <span>Espere un momento porfavor</span>
+    } @else {
+    <p>No hay elementos para mostrar</p>
+    <span>Haga una nueva busqueda</span>
+    }
+  </mat-card-content>
+</mat-card>
+} @else {
 <section class="table_container">
   <table mat-table [dataSource]="source" multiTemplateDataRows>
     @for (column of columnsToDisplay; track column) {
@@ -55,3 +79,4 @@
     <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
   </table>
 </section>
+}
