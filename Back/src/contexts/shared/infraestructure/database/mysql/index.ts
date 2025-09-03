@@ -42,6 +42,7 @@ export class MySQL {
         database: env.db.mysql.name,
         ssl: { minVersion: "TLSv1.2" as const },
         enableKeepAlive: true,
+        waitForConnections: true,
         authPlugins: {
           mysql_clear_password: () => () => Buffer.from(token),
         },

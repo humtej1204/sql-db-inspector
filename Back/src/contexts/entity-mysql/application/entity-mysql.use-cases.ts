@@ -1,4 +1,5 @@
 import { IAppContext } from "../../shared/domain/app-context/app-context.interface";
+import { IFindSchemasOptionsParams } from "../domain/interfaces/repository/find-schemas-options-params.interface";
 import { FindEntityMysql } from "./use-cases/find-entity-mysql";
 
 export class EntityMysqlUseCases {
@@ -8,15 +9,18 @@ export class EntityMysqlUseCases {
     this.findEntityMysqlUseCase = new FindEntityMysql(appContext);
   }
 
-  findBaseTables() {
-    return this.findEntityMysqlUseCase.findBaseTables();
+  findSchemas(options?: IFindSchemasOptionsParams) {
+    return this.findEntityMysqlUseCase.findSchemas(options);
   }
 
-  findTablesRelations() {
-    return this.findEntityMysqlUseCase.findTablesRelations();
+  findTablesRelationsBySchemas(schemas?: string[]) {
+    return this.findEntityMysqlUseCase.findTablesRelationsBySchemas(schemas);
   }
 
-  findTableRelationsByName(tableName: string) {
-    return this.findEntityMysqlUseCase.findTableRelationsByName(tableName);
+  findValueAnywhere(
+    value: string,
+    opts: { schema?: string; searchMode?: "contains" | "equals" }
+  ) {
+    return this.findEntityMysqlUseCase.findValueAnywhere(value, opts);
   }
 }

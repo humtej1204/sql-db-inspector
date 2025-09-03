@@ -1,6 +1,9 @@
 import { EntityMysqlUseCases } from "../../contexts/entity-mysql/application/entity-mysql.use-cases";
 import { IAppContext } from "../../contexts/shared/domain/app-context/app-context.interface";
-import { Controller } from "../../contexts/shared/infraestructure/interceptors/controller.decorator";
+import {
+  Controller,
+  IControllerData,
+} from "../../contexts/shared/infraestructure/interceptors/controller.decorator";
 
 @Controller
 export class EntityMysqlController {
@@ -10,9 +13,9 @@ export class EntityMysqlController {
     this.entityMysqlUseCases = new EntityMysqlUseCases(context);
   }
 
-  async getBaseTables() {
+  async getSchemas() {
     try {
-      const response = await this.entityMysqlUseCases.findBaseTables();
+      const response = await this.entityMysqlUseCases.findSchemas();
 
       return response;
     } catch (error) {
@@ -20,9 +23,10 @@ export class EntityMysqlController {
     }
   }
 
-  async getTablesRelations() {
+  async findTablesRelationsBySchemas() {
     try {
-      const response = await this.entityMysqlUseCases.findTablesRelations();
+      const response =
+        await this.entityMysqlUseCases.findTablesRelationsBySchemas();
 
       return response;
     } catch (error) {
@@ -30,10 +34,20 @@ export class EntityMysqlController {
     }
   }
 
-  async getTableRelationsByName(tableName: string) {
+  async findValueAnywhere({ query }: IControllerData) {
     try {
-      const response = await this.entityMysqlUseCases.findTableRelationsByName(
-        tableName
+      const value = String(query?.value ?? "");
+      const schema = String(query?.schema ?? "");
+      const searchMode = String(query?.searchMode ?? "") as any;
+
+      const options: { schema?: string; searchMode?: "contains" | "equals" } =
+        {};
+      if (query?.schema) options.schema = schema;
+      if (query?.searchMode) options.searchMode = searchMode;
+
+      const response = await this.entityMysqlUseCases.findValueAnywhere(
+        value,
+        options
       );
 
       return response;

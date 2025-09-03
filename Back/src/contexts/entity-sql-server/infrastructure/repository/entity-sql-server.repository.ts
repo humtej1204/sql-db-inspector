@@ -15,12 +15,12 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
 
   get Entity() {
     this.db = this.database.db!;
-    return this.db;
+    return this.db.request();
   }
 
   async findAllTables(): Promise<any> {
     try {
-      const res = await this.Entity.request().query(`
+      const res = await this.Entity.query(`
       SELECT
         s.name  AS schema_name,
         t.name  AS table_name,
@@ -125,7 +125,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       GROUP BY bt.schema_name, bt.table_name
       ORDER BY bt.schema_name, bt.table_name;
       `;
-      const res = await this.Entity.request().query(query);
+      const res = await this.Entity.query(query);
       const sets: IRecordSet<any>[] = Array.isArray(res.recordsets)
         ? res.recordsets
         : Object.values(res.recordsets);
@@ -334,7 +334,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       GROUP BY bt.schema_name, bt.table_name
       ORDER BY bt.schema_name, bt.table_name;
     `;
-      const res = await this.Entity.request().query(query);
+      const res = await this.Entity.query(query);
       const sets: IRecordSet<any>[] = Array.isArray(res.recordsets)
         ? res.recordsets
         : Object.values(res.recordsets);
@@ -598,7 +598,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       JOIN sys.partitions p ON p.object_id = tg.object_id
       GROUP BY tg.schema_name, tg.table_name;
       `;
-      const req = this.Entity.request();
+      const req = this.Entity;
       req.input("schema", NVarChar, schema);
       req.input("table", NVarChar, table);
       const res = await req.query(query);
@@ -716,7 +716,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
         ORDER BY s.name, t.name, c.column_id;
       `;
 
-      const metaReq = this.Entity.request();
+      const metaReq = this.Entity;
       if (schema) metaReq.input("schema", NVarChar, schema);
       const metaRes = await metaReq.query(metaSql);
 
@@ -806,7 +806,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
         ORDER BY schema_name, table_name, column_name;
       `;
 
-      const run = this.Entity.request();
+      const run = this.Entity;
       run.input("p_value", NVarChar, value);
       const res = await run.query(batch);
 

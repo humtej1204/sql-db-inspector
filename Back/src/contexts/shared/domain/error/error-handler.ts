@@ -1,5 +1,6 @@
 import { AppError } from "../../domain/error/app-error";
 import { internalServerError } from "../../domain/error/handler-error";
+import { mysqlDB } from "../../infraestructure/database/mysql";
 import { sqlServerDB } from "../../infraestructure/database/sql-server";
 
 interface IErrorHandlerOptions {
@@ -28,6 +29,7 @@ export async function errorHandler(
     return error;
   } else if (options?.callback && isSQLDBTokenAuthError(error)) {
     await sqlServerDB.refreshTokenAndReconnect();
+    await mysqlDB.refreshTokenAndReconnect();
     return await options.callback();
   } else {
     const err = error as Error;

@@ -1,5 +1,6 @@
 import { IAppContext } from "../../../shared/domain/app-context/app-context.interface";
 import { IEntityMysqlRepository } from "../../domain/entity-mysql-repository";
+import { IFindSchemasOptionsParams } from "../../domain/interfaces/repository/find-schemas-options-params.interface";
 
 export class FindEntityMysql {
   private readonly entityMysqlRepository: IEntityMysqlRepository;
@@ -9,15 +10,20 @@ export class FindEntityMysql {
       this.context.repositories.entityMysqlRepository;
   }
 
-  async findBaseTables(): Promise<any> {
-    return await this.entityMysqlRepository.findBaseTables();
+  async findSchemas(options?: IFindSchemasOptionsParams): Promise<any> {
+    return await this.entityMysqlRepository.findSchemas(options);
   }
 
-  async findTablesRelations(): Promise<any> {
-    return await this.entityMysqlRepository.findTablesRelations();
+  async findTablesRelationsBySchemas(schemas?: string[]): Promise<any> {
+    return await this.entityMysqlRepository.findTablesRelationsBySchemas(
+      schemas
+    );
   }
 
-  async findTableRelationsByName(tableName: string): Promise<any> {
-    return await this.entityMysqlRepository.findTableRelationsByName(tableName);
+  async findValueAnywhere(
+    value: string,
+    opts: { schema?: string; searchMode?: "contains" | "equals" }
+  ): Promise<any> {
+    return await this.entityMysqlRepository.findValueAnywhere(value, opts);
   }
 }

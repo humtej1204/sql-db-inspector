@@ -11,7 +11,13 @@ class EntityMysqlRouter extends RouterBase<EntityMysqlController> {
   routes(): void {
     this.router
       .route("/")
-      .get(this.controller.getBaseTables.bind(this.controller));
+      .get(this.controller.getSchemas.bind(this.controller));
+    this.router
+      .route("/find-tables-relations")
+      .get(this.controller.findTablesRelationsBySchemas.bind(this.controller));
+    this.router
+      .route("/find-value-anywhere")
+      .get(this.controller.findValueAnywhere.bind(this.controller));
   }
 }
 

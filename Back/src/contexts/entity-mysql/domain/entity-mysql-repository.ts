@@ -1,5 +1,10 @@
+import { IFindSchemasOptionsParams } from "./interfaces/repository/find-schemas-options-params.interface";
+
 export interface IEntityMysqlRepository {
-  findBaseTables(): Promise<any>;
-  findTablesRelations(): Promise<any>;
-  findTableRelationsByName(tableName: string): Promise<any>;
+  findSchemas(options?: IFindSchemasOptionsParams): Promise<any>;
+  findTablesRelationsBySchemas(schemas?: string[]): Promise<any>;
+  findValueAnywhere(
+    value: string,
+    opts: { schema?: string; searchMode?: "contains" | "equals" }
+  ): Promise<any>;
 }
