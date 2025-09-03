@@ -48,6 +48,8 @@ export class SQLServer {
           encrypt: env.db.sqlServer.options.encrypt,
           trustServerCertificate:
             env.db.sqlServer.options.trustServerCertificate,
+          cryptoCredentialsDetails: { minVersion: "TLSv1.2" },
+          connectTimeout: 15000,
         },
         authentication: {
           type: env.db.sqlServer.auth.type as any,

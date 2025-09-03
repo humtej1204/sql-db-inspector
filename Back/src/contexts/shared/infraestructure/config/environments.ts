@@ -18,7 +18,7 @@ export const env: IEnvironments = {
       port: Number(process.env.DB_MYSQL_PORT),
       user: String(process.env.DB_MYSQL_USER),
       pass: String(process.env.DB_MYSQL_PASS),
-      name: String(process.env.DB_MYSQL_NAME),
+      name: String(process.env.DB_MYSQL_NAME ?? ""),
     },
     sqlServer: {
       host: String(process.env.DB_SQLSERV_HOST),
