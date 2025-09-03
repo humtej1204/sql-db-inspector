@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AppBackendService } from '../services/app-backend-service/app-backend-service';
+import { SqlServerEntityService } from '../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { BehaviorSubject } from 'rxjs';
 import { IGetAllTablesResponse } from '../services/app-backend-service/interfaces/response.interface';
 
@@ -10,7 +10,7 @@ export class GlobalStore {
   private tableList$ = new BehaviorSubject<IGetAllTablesResponse[]>([]);
   private readonly tableList = this.tableList$.asObservable();
 
-  constructor(private readonly appBackendServ: AppBackendService) {}
+  constructor(private readonly appBackendServ: SqlServerEntityService) {}
 
   setNewTableList() {
     this.appBackendServ.getAllTables().subscribe((response) => {

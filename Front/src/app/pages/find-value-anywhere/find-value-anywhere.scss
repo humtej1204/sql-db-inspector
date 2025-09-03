@@ -8,16 +8,28 @@
 
 .form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr)) 120px;
+  grid-template-columns: repeat(9, 1fr);
   gap: 12px;
 
-  mat-form-field {
-    height: 48px;
+  .form_value {
+    grid-column: span 6;
+  }
+
+  .form_schema {
+    grid-column: span 3;
+  }
+
+  .form_search_mode {
+    grid-column: 1 / span 4;
+  }
+
+  .form_selected_db {
+    grid-column: 5 / span 4;
   }
 
   button {
     margin-top: 6px;
-    justify-self: flex-end;
+    justify-self: end;
     height: 48px;
     width: 120px;
   }

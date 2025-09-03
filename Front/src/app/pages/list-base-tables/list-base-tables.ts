@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { IGetBaseTablesResponse } from '../../services/app-backend-service/interfaces/response.interface';
-import { AppBackendService } from '../../services/app-backend-service/app-backend-service';
+import { SqlServerEntityService } from '../../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BaseTableInfo } from './components/base-table-info/base-table-info';
+import { IGetBaseTablesResponse } from '../../services/app-backend-service/interfaces/response.interface';
 
 @Component({
   selector: 'app-list-base-tables',
@@ -37,7 +37,7 @@ export class ListBaseTables implements OnInit {
   protected expandedElement!: IGetBaseTablesResponse | null;
   protected showEmptyTables = false;
 
-  constructor(private readonly appBackendServ: AppBackendService) {}
+  constructor(private readonly appBackendServ: SqlServerEntityService) {}
 
   getcolumnHeader(column: string) {
     const columnsData: Record<string, string> = {

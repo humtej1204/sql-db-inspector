@@ -8,9 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { AppBackendService } from '../../services/app-backend-service/app-backend-service';
-import { IGetTablesRelationsResponse } from '../../services/app-backend-service/interfaces/response.interface';
+import { SqlServerEntityService } from '../../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { TableInfo } from './components/table-info/table-info';
+import { IGetTablesRelationsResponse } from '../../services/app-backend-service/interfaces/response.interface';
 
 @Component({
   selector: 'app-get-tables-relations',
@@ -37,7 +37,7 @@ export class GetTablesRelations implements OnInit {
   protected expandedElement!: IGetTablesRelationsResponse | null;
   protected showEmptyTables = false;
 
-  constructor(private readonly appBackendServ: AppBackendService) {}
+  constructor(private readonly appBackendServ: SqlServerEntityService) {}
 
   getcolumnHeader(column: string) {
     const columnsData: Record<string, string> = {

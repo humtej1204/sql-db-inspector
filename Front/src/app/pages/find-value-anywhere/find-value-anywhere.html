@@ -1,5 +1,5 @@
 <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
-  <mat-form-field appearance="outline" class="field">
+  <mat-form-field appearance="outline" class="field form_value">
     <mat-label>Valor a buscar</mat-label>
     <input matInput formControlName="value" required />
     @if (form.controls['value'].hasError('required')) {
@@ -7,17 +7,24 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="field">
+  <mat-form-field appearance="outline" class="field form_schema">
     <mat-label>Schema</mat-label>
     <input matInput formControlName="schema" />
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="field">
+  <mat-form-field appearance="outline" class="field form_search_mode">
     <mat-label>Modo de búsqueda</mat-label>
     <mat-select formControlName="searchMode">
-      <mat-option [value]="undefined">—</mat-option>
       <mat-option value="contains">Contiene</mat-option>
       <mat-option value="equals">Igual</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="field form_selected_db">
+    <mat-label>Seleccione DB</mat-label>
+    <mat-select formControlName="selectedDB">
+      <mat-option value="boost">Boost - SQL Server</mat-option>
+      <mat-option value="bare">Bare - MySQL</mat-option>
     </mat-select>
   </mat-form-field>
 

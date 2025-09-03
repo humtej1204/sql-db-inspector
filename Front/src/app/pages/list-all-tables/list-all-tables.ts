@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GlobalStore } from '../../stores/global-store';
-import { IGetAllTablesResponse } from '../../services/app-backend-service/interfaces/response.interface';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +8,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { IGetAllTablesResponse } from '../../services/app-backend-service/interfaces/response.interface';
 
 @Component({
   selector: 'app-list-all-tables',

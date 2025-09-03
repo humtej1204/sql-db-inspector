@@ -1,27 +1,27 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
+import { ICommonBackendResponse } from '../../interfaces/common-backend-response.interface';
 import {
-  IFindValueAnywhereParams,
   IGetTableRelationsByNameParams,
-} from './interfaces/params.interface';
+  IFindValueAnywhereParams,
+} from '../interfaces/params.interface';
 import {
-  IFindValueAnywhereResponse,
   IGetAllTablesResponse,
   IGetBaseTablesResponse,
-  IGetTableRelationsByNameResponse,
   IGetTablesRelationsResponse,
-} from './interfaces/response.interface';
-import { ICommonBackendResponse } from '../interfaces/common-backend-response.interface';
+  IGetTableRelationsByNameResponse,
+  IFindValueAnywhereResponse,
+} from '../interfaces/response.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AppBackendService {
+export class SqlServerEntityService {
   private readonly uriBase = environment.backendService;
   private readonly basePath = 'v1/entity-sql-server';
 
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   getAllTables() {
     const uri = `${this.uriBase}/${this.basePath}/find-tables`;

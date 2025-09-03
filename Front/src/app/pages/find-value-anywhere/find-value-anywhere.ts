@@ -1,12 +1,17 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { AppBackendService } from '../../services/app-backend-service/app-backend-service';
+import { SqlServerEntityService } from '../../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { IFindValueAnywhereParams } from '../../services/app-backend-service/interfaces/params.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
@@ -14,6 +19,10 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MySqlEntityService } from '../../services/app-backend-service/mysql-entity/mysql-entity-service';
+import { IFindValueAnywhereResponse } from '../../services/app-backend-service/interfaces/response.interface';
+import { IFindValueAnywhereParams } from '../../services/app-backend-service/interfaces/params.interface';
+import { ICommonBackendResponse } from '../../services/interfaces/common-backend-response.interface';
 
 @Component({
   selector: 'app-find-value-anywhere',
@@ -36,12 +45,13 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   styleUrl: './find-value-anywhere.scss',
 })
 export class FindValueAnywhere implements OnInit {
-  protected source: Array<{ name: string; schema: string; table: string; columns: string[] }> = [];
+  protected source: IFindValueAnywhereResponse[] = [];
   protected loading = signal(false);
   protected form!: FormGroup;
 
   constructor(
-    private readonly appBackendServ: AppBackendService,
+    private readonly sqlServerEntityServ: SqlServerEntityService,
+    private readonly mySqlEntityServ: MySqlEntityService,
     private readonly matSnackBar: MatSnackBar,
     private readonly fb: FormBuilder
   ) {}
@@ -51,13 +61,14 @@ export class FindValueAnywhere implements OnInit {
       value: ['', Validators.required],
       schema: [''],
       searchMode: [''],
+      selectedDB: ['boost'],
     });
   }
 
   onSubmit() {
     if (this.form.invalid || !this.findValue) return;
     this.loading.set(true);
-    const { value, schema, searchMode } = this.form.getRawValue();
+    const { value, schema, searchMode, selectedDB } = this.form.getRawValue();
 
     const payload: IFindValueAnywhereParams = {
       value: value!.trim(),
@@ -65,16 +76,22 @@ export class FindValueAnywhere implements OnInit {
     if (schema) payload.schema = schema?.trim();
     if (searchMode) payload.searchMode = searchMode;
 
-    this.findValue(payload);
+    this.findValue(payload, selectedDB);
   }
 
-  findValue(data: IFindValueAnywhereParams) {
-    this.appBackendServ.findValueAnywhere(data).subscribe((response) => {
-      const data = response.data;
+  findValue(data: IFindValueAnywhereParams, selectedDB: string) {
+    const request: Record<string, any> = {
+      boost: this.sqlServerEntityServ.findValueAnywhere(data),
+      bare: this.mySqlEntityServ.findValueAnywhere(data),
+    };
+    request[selectedDB].subscribe(
+      (response: ICommonBackendResponse<IFindValueAnywhereResponse[]>) => {
+        const data = response.data;
 
-      this.source = data;
-      this.loading.set(false);
-    });
+        this.source = data;
+        this.loading.set(false);
+      }
+    );
   }
 
   onCopied(success: boolean) {
