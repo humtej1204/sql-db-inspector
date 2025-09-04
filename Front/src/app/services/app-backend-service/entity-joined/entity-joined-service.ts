@@ -15,8 +15,6 @@ export class EntityJoinedService {
 
   joinDataFromTables(payload: IJoinDataFromTablesParams) {
     const uri = `${this.uriBase}/${this.basePath}/join-data`;
-    return this.http.post<ICommonBackendResponse<any>>(uri, {
-      body: payload,
-    });
+    return this.http.post<ICommonBackendResponse<any>>(uri, payload);
   }
 }
