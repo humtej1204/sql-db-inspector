@@ -10,6 +10,7 @@ import { GlobalStore } from '../../stores/global-store';
 import { IListDatabasesResponse } from '../../services/app-backend-service/interfaces/response.interface';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { EntityJoinedService } from '../../services/app-backend-service/entity-joined/entity-joined-service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-join-entities',
@@ -72,9 +73,16 @@ export class JoinEntities implements OnInit {
   onSubmit() {
     this.loading.set(true);
     const payload = this.form.getRawValue();
-    this.entityJoinedService.joinDataFromTables(payload).subscribe((res) => {
-      console.log(res);
-      this.loading.set(false);
-    });
+    this.entityJoinedService
+      .joinDataFromTables(payload)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 }
