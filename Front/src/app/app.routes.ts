@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { FindValueAnywhere } from './pages/find-value-anywhere/find-value-anywhere';
 import { GetTablesRelations } from './pages/get-tables-relations/get-tables-relations';
+import { JoinEntities } from './pages/join-entities/join-entities';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'find-value-anywhere', pathMatch: 'full' },
@@ -11,6 +12,7 @@ export const routes: Routes = [
     children: [
       { path: 'find-value-anywhere', component: FindValueAnywhere },
       { path: 'get-tables-relations', component: GetTablesRelations },
+      { path: 'join-entities', component: JoinEntities },
     ],
   },
   { path: '**', redirectTo: 'find-value-anywhere' },
