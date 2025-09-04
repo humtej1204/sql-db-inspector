@@ -1,26 +1,34 @@
 import { IRecordSet, NVarChar } from "mssql";
 import { errorHandler } from "../../../shared/domain/error/error-handler";
-import {
-  ISQLServerDB,
-  SQLServer,
-} from "../../../shared/infraestructure/database/sql-server";
+import { SQLServer } from "../../../shared/infraestructure/database/sql-server";
 import { IEntitySqlServerRepository } from "../../domain/entity-sql-server-repository";
+import { IFindValueAnywhereOptionsParams } from "../../domain/interfaces/find-values-anywhere-params.interface";
+import { IFindTableRelationsByNameParams } from "../../domain/interfaces/find-table-relations-by-name-params.interface";
 
 export class EntitySqlServerRepository implements IEntitySqlServerRepository {
-  private db: ISQLServerDB;
+  constructor(private readonly database: SQLServer) {}
 
-  constructor(private readonly database: SQLServer) {
-    this.db = this.database.db!;
+  async Entity(database?: string) {
+    const db = await this.database.getConnection(database);
+    return db.request();
   }
 
-  get Entity() {
-    this.db = this.database.db!;
-    return this.db.request();
-  }
-
-  async findAllTables(): Promise<any> {
+  async executeQuery(query: string, database?: string): Promise<any> {
     try {
-      const res = await this.Entity.query(`
+      if (!query) return null;
+      const req = await this.Entity(database);
+      const res = await req.query(query);
+
+      return res.recordsets;
+    } catch (error) {
+      throw errorHandler(error, { callback: () => this.executeQuery(query) });
+    }
+  }
+
+  async findAllTables(database?: string): Promise<any> {
+    try {
+      const req = await this.Entity(database);
+      const res = await req.query(`
       SELECT
         s.name  AS schema_name,
         t.name  AS table_name,
@@ -44,7 +52,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
     }
   }
 
-  async findBaseTables(): Promise<any> {
+  async findBaseTables(database?: string): Promise<any> {
     try {
       const query = `
       IF OBJECT_ID('tempdb..#base_tables') IS NOT NULL DROP TABLE #base_tables;
@@ -125,7 +133,8 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       GROUP BY bt.schema_name, bt.table_name
       ORDER BY bt.schema_name, bt.table_name;
       `;
-      const res = await this.Entity.query(query);
+      const req = await this.Entity(database);
+      const res = await req.query(query);
       const sets: IRecordSet<any>[] = Array.isArray(res.recordsets)
         ? res.recordsets
         : Object.values(res.recordsets);
@@ -221,7 +230,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
     }
   }
 
-  async findTablesRelations(): Promise<any> {
+  async findTablesRelations(database?: string): Promise<any> {
     try {
       const query = `
       IF OBJECT_ID('tempdb..#target') IS NOT NULL DROP TABLE #target;
@@ -334,7 +343,8 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       GROUP BY bt.schema_name, bt.table_name
       ORDER BY bt.schema_name, bt.table_name;
     `;
-      const res = await this.Entity.query(query);
+      const req = await this.Entity(database);
+      const res = await req.query(query);
       const sets: IRecordSet<any>[] = Array.isArray(res.recordsets)
         ? res.recordsets
         : Object.values(res.recordsets);
@@ -482,10 +492,10 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
   }
 
   async findTableRelationsByName(
-    table: string,
-    schema: string = "dbo"
+    params: IFindTableRelationsByNameParams
   ): Promise<any> {
     try {
+      const { table, schema = "dbo" } = params;
       if (!table) throw new Error("Debes especificar { table }");
 
       const query = `
@@ -598,7 +608,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       JOIN sys.partitions p ON p.object_id = tg.object_id
       GROUP BY tg.schema_name, tg.table_name;
       `;
-      const req = this.Entity;
+      const req = await this.Entity(params.database);
       req.input("schema", NVarChar, schema);
       req.input("table", NVarChar, table);
       const res = await req.query(query);
@@ -684,14 +694,14 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       return data;
     } catch (error) {
       throw errorHandler(error, {
-        callback: () => this.findTableRelationsByName(table, schema),
+        callback: () => this.findTableRelationsByName(params),
       });
     }
   }
 
   async findValueAnywhere(
     value: string,
-    opts: { schema?: string; searchMode?: "contains" | "equals" } = {}
+    opts: IFindValueAnywhereOptionsParams = {}
   ): Promise<any> {
     try {
       const { schema, searchMode = "contains" } = opts;
@@ -716,7 +726,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
         ORDER BY s.name, t.name, c.column_id;
       `;
 
-      const metaReq = this.Entity;
+      const metaReq = await this.Entity(opts.database);
       if (schema) metaReq.input("schema", NVarChar, schema);
       const metaRes = await metaReq.query(metaSql);
 
@@ -806,7 +816,7 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
         ORDER BY schema_name, table_name, column_name;
       `;
 
-      const run = this.Entity;
+      const run = await this.Entity();
       run.input("p_value", NVarChar, value);
       const res = await run.query(batch);
 

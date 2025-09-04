@@ -24,12 +24,23 @@ export class EntityMysqlRepository implements IEntityMysqlRepository {
     return this.db;
   }
 
+  async executeQuery(query?: string): Promise<any> {
+    try {
+      if (!query) return null;
+      const [res] = await this.Entity.query(query);
+
+      return res;
+    } catch (error) {
+      throw errorHandler(error, { callback: () => this.executeQuery(query) });
+    }
+  }
+
   async findSchemas(options?: IFindSchemasOptionsParams): Promise<any> {
     try {
       const includeSystem = Boolean(options?.includeSystem);
       const includeViews = Boolean(options?.includeViews);
       const useGiven =
-        Array.isArray(options?.schemas) && options!.schemas!.length > 0;
+        Array.isArray(options?.schemas) && options.schemas.length > 0;
 
       const placeholders = (n: number) =>
         Array.from({ length: n }, () => "?").join(",");
@@ -38,9 +49,9 @@ export class EntityMysqlRepository implements IEntityMysqlRepository {
       let schemaParams: string[] = [];
       if (useGiven) {
         schemaWhere = `SCHEMA_NAME IN (${placeholders(
-          options!.schemas!.length
+          options.schemas!.length
         )})`;
-        schemaParams = options!.schemas!;
+        schemaParams = options.schemas!;
       } else if (!includeSystem) {
         schemaWhere = `SCHEMA_NAME NOT IN (${placeholders(
           this.systemSchemas.length
@@ -347,185 +358,6 @@ export class EntityMysqlRepository implements IEntityMysqlRepository {
       chunkSize?: number;
     } = {}
   ): Promise<any> {
-    // try {
-    //   const { schema, searchMode = "contains" } = opts;
-
-    //   const placeholders = (n: number) =>
-    //     Array.from({ length: n }, () => "?").join(",");
-    //   const escId = (s: string) => "`" + String(s).replace(/`/g, "``") + "`"; // escape de identificadores MySQL
-
-    //   // 1) Metadatos: columnas buscables por schema(s)
-    //   const metaWhere = schema
-    //     ? `c.TABLE_SCHEMA = ?`
-    //     : `c.TABLE_SCHEMA NOT IN (${placeholders(this.systemSchemas.length)})`;
-
-    //   const skipTypes = [
-    //     "tinyblob",
-    //     "blob",
-    //     "mediumblob",
-    //     "longblob",
-    //     "binary",
-    //     "varbinary",
-    //     "bit",
-    //     "geometry",
-    //     "point",
-    //     "linestring",
-    //     "polygon",
-    //     "multipoint",
-    //     "multilinestring",
-    //     "multipolygon",
-    //     "geometrycollection",
-    //     "json", // (opcional: puedes manejar JSON con JSON_SEARCH si quieres)
-    //   ];
-
-    //   const metaSql = `
-    //     SELECT
-    //       c.TABLE_SCHEMA AS schema_name,
-    //       c.TABLE_NAME   AS table_name,
-    //       c.COLUMN_NAME  AS column_name,
-    //       LOWER(c.DATA_TYPE) AS data_type
-    //     FROM INFORMATION_SCHEMA.COLUMNS c
-    //     JOIN INFORMATION_SCHEMA.TABLES t
-    //       ON t.TABLE_SCHEMA = c.TABLE_SCHEMA
-    //     AND t.TABLE_NAME   = c.TABLE_NAME
-    //     WHERE t.TABLE_TYPE = 'BASE TABLE'
-    //       AND ${metaWhere}
-    //       AND (c.GENERATION_EXPRESSION IS NULL OR c.GENERATION_EXPRESSION = '')
-    //       AND LOWER(c.DATA_TYPE) NOT IN (${placeholders(skipTypes.length)})
-    //     ORDER BY c.TABLE_SCHEMA, c.TABLE_NAME, c.ORDINAL_POSITION
-    //   `;
-
-    //   const metaParams = schema
-    //     ? [schema, ...skipTypes]
-    //     : [...this.systemSchemas, ...skipTypes];
-    //   const [metaRows] = await this.Entity.query(metaSql, metaParams);
-
-    //   // Clasificadores de tipo (MySQL)
-    //   const TEXT = new Set([
-    //     "char",
-    //     "varchar",
-    //     "tinytext",
-    //     "text",
-    //     "mediumtext",
-    //     "longtext",
-    //     "enum",
-    //     "set",
-    //   ]);
-    //   const NUM = new Set([
-    //     "bigint",
-    //     "int",
-    //     "integer",
-    //     "smallint",
-    //     "mediumint",
-    //     "tinyint",
-    //     "decimal",
-    //     "numeric",
-    //     "float",
-    //     "double",
-    //     "double precision",
-    //     "real",
-    //   ]);
-    //   const DATE = new Set(["date", "datetime", "timestamp", "time", "year"]);
-
-    //   const selects: string[] = [];
-    //   const params: any[] = [];
-
-    //   for (const r of metaRows as Array<{
-    //     schema_name: string;
-    //     table_name: string;
-    //     column_name: string;
-    //     data_type: string;
-    //   }>) {
-    //     const S = escId(r.schema_name);
-    //     const T = escId(r.table_name);
-    //     const C = escId(r.column_name);
-
-    //     let predicate = "";
-    //     const predParams: any[] = [];
-
-    //     if (TEXT.has(r.data_type)) {
-    //       if (searchMode === "equals") {
-    //         predicate = `${C} = ?`;
-    //         predParams.push(value);
-    //       } else {
-    //         predicate = `${C} LIKE ?`;
-    //         predParams.push(`%${value}%`);
-    //       }
-    //     } else if (NUM.has(r.data_type)) {
-    //       if (searchMode === "equals") {
-    //         // Compara como número
-    //         predicate = `CAST(${C} AS DECIMAL(65,30)) = CAST(? AS DECIMAL(65,30))`;
-    //         predParams.push(value);
-    //       } else {
-    //         // Búsqueda "contains" → textual
-    //         predicate = `CAST(${C} AS CHAR) LIKE ?`;
-    //         predParams.push(`%${value}%`);
-    //       }
-    //     } else if (DATE.has(r.data_type)) {
-    //       if (searchMode === "equals") {
-    //         // Ajuste según tipo concreto
-    //         if (r.data_type === "date") {
-    //           predicate = `${C} = CAST(? AS DATE)`;
-    //         } else if (r.data_type === "time") {
-    //           predicate = `${C} = CAST(? AS TIME)`;
-    //         } else if (r.data_type === "year") {
-    //           predicate = `${C} = CAST(? AS UNSIGNED)`;
-    //         } else {
-    //           // datetime/timestamp
-    //           predicate = `${C} = CAST(? AS DATETIME)`;
-    //         }
-    //         predParams.push(value);
-    //       } else {
-    //         predicate = `CAST(${C} AS CHAR) LIKE ?`;
-    //         predParams.push(`%${value}%`);
-    //       }
-    //     } else {
-    //       if (searchMode === "equals") {
-    //         predicate = `CAST(${C} AS CHAR) = ?`;
-    //         predParams.push(value);
-    //       } else {
-    //         predicate = `CAST(${C} AS CHAR) LIKE ?`;
-    //         predParams.push(`%${value}%`);
-    //       }
-    //     }
-
-    //     selects.push(
-    //       `SELECT ? AS schema_name, ? AS table_name, ? AS column_name
-    //      FROM DUAL
-    //      WHERE EXISTS (
-    //        SELECT 1 FROM ${S}.${T}
-    //        WHERE ${predicate}
-    //        LIMIT 1
-    //      )`
-    //     );
-    //     params.push(r.schema_name, r.table_name, r.column_name, ...predParams);
-    //   }
-
-    //   if (selects.length === 0) return [];
-
-    //   const sql = selects.join("\nUNION ALL\n");
-    //   const [hits] = await this.Entity.query(sql, params);
-
-    //   const map: Record<string, any> = {};
-    //   (hits as any[]).forEach((row) => {
-    //     const key = `${row.schema_name}.${row.table_name}`;
-    //     if (!map[key]) {
-    //       map[key] = {
-    //         name: key,
-    //         schema: row.schema_name,
-    //         table: row.table_name,
-    //         columns: [] as string[],
-    //       };
-    //     }
-    //     map[key].columns.push(row.column_name);
-    //   });
-
-    //   return Object.values(map);
-    // } catch (error) {
-    // throw errorHandler(error, {
-    //   callback: () => this.findValueAnywhere(value, opts),
-    // });
-    // }
     try {
       const { schema, searchMode = "contains", chunkSize = 200 } = opts;
 
@@ -667,7 +499,6 @@ export class EntityMysqlRepository implements IEntityMysqlRepository {
               predParams.push(`%${value}%`);
             }
           } else {
-            // Fallback textual
             if (searchMode === "equals") {
               predicate = `CAST(${C} AS CHAR) = ?`;
               predParams.push(value);

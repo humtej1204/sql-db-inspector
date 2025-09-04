@@ -199,8 +199,8 @@ function parseArgs(args: string[]): Record<string, string> {
 
 // CLI
 const args = process.argv.slice(2);
-const [entityName] = args.filter((arg) => !arg.includes("="));
-if (!entityName) {
+const [name] = args.filter((arg) => !arg.includes("="));
+if (!name) {
   console.error("❌ Please provide an entity name");
   process.exit(1);
 }
@@ -209,7 +209,7 @@ const database = options.db?.toLowerCase() || "mysql";
 const pluralName = options.pluralName?.toLowerCase() || undefined;
 
 generateEntity({
-  entityRawName: entityName,
+  entityRawName: name,
   pluralOverride: pluralName,
   database,
 });

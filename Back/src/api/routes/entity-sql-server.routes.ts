@@ -3,12 +3,18 @@ import { IAppContext } from "../../contexts/shared/domain/app-context/app-contex
 import { RouterBase } from "../routes-config/routes-base";
 import { EntitySqlServerController } from "../controllers/entity-sql-server.controller";
 
-class EntityMysqlRouter extends RouterBase<EntitySqlServerController> {
+class EntitySqlServerRouter extends RouterBase<EntitySqlServerController> {
   constructor(readonly context: IAppContext) {
     super(EntitySqlServerController, context);
   }
 
   routes(): void {
+    this.router
+      .route("/connect")
+      .post(this.controller.connectDb.bind(this.controller));
+    this.router
+      .route("/find-database-list")
+      .get(this.controller.findDatabaseList.bind(this.controller));
     this.router
       .route("/find-tables")
       .get(this.controller.getAllTables.bind(this.controller));
@@ -28,4 +34,4 @@ class EntityMysqlRouter extends RouterBase<EntitySqlServerController> {
 }
 
 export const router = (context: IAppContext): Router =>
-  new EntityMysqlRouter(context).router;
+  new EntitySqlServerRouter(context).router;

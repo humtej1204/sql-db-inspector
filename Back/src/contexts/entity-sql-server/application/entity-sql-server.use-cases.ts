@@ -1,4 +1,6 @@
 import { IAppContext } from "../../shared/domain/app-context/app-context.interface";
+import { IFindTableRelationsByNameParams } from "../domain/interfaces/find-table-relations-by-name-params.interface";
+import { IFindValueAnywhereOptionsParams } from "../domain/interfaces/find-values-anywhere-params.interface";
 import { FindEntitySqlServer } from "./use-cases/find-entity-sql-server";
 
 export class EntitySqlServerUseCases {
@@ -8,28 +10,33 @@ export class EntitySqlServerUseCases {
     this.findEntitySqlServerUseCase = new FindEntitySqlServer(appContext);
   }
 
-  findAllTables() {
-    return this.findEntitySqlServerUseCase.findAllTables();
+  connectDb(database: string) {
+    return this.findEntitySqlServerUseCase.connectDb(database);
   }
 
-  findBaseTables() {
-    return this.findEntitySqlServerUseCase.findBaseTables();
+  findDatabaseList() {
+    return this.findEntitySqlServerUseCase.getDatabaseList();
   }
 
-  findTablesRelations() {
-    return this.findEntitySqlServerUseCase.findTablesRelations();
+  findAllTables(database?: string) {
+    return this.findEntitySqlServerUseCase.findAllTables(database);
   }
 
-  findTableRelationsByName(table: string, schema?: string) {
-    return this.findEntitySqlServerUseCase.findTableRelationsByName(
-      table,
-      schema
-    );
+  findBaseTables(database?: string) {
+    return this.findEntitySqlServerUseCase.findBaseTables(database);
+  }
+
+  findTablesRelations(database?: string) {
+    return this.findEntitySqlServerUseCase.findTablesRelations(database);
+  }
+
+  findTableRelationsByName(params: IFindTableRelationsByNameParams) {
+    return this.findEntitySqlServerUseCase.findTableRelationsByName(params);
   }
 
   async findValueAnywhere(
     value: string,
-    opts: { schema?: string; searchMode?: "contains" | "equals" }
+    opts: IFindValueAnywhereOptionsParams
   ): Promise<any> {
     return await this.findEntitySqlServerUseCase.findValueAnywhere(value, opts);
   }
