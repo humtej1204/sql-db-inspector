@@ -2,7 +2,7 @@ import { IFindTableRelationsByNameParams } from "./interfaces/find-table-relatio
 import { IFindValueAnywhereOptionsParams } from "./interfaces/find-values-anywhere-params.interface";
 
 export interface IEntitySqlServerRepository {
-  executeQuery(query?: string): Promise<any>;
+  executeQuery(query?: string, database?: string): Promise<any>;
   findAllTables(database?: string): Promise<any>;
   findBaseTables(database?: string): Promise<any>;
   findTablesRelations(database?: string): Promise<any>;

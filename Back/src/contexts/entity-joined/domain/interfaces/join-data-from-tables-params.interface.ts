@@ -6,4 +6,5 @@ export interface IJoinDataFromTablesParams {
 export interface IDatabaseParams {
   query: string;
   fk: string;
+  database?: string;
 }

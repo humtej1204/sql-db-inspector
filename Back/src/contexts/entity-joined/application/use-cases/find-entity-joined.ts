@@ -21,7 +21,8 @@ export class FindEntityJoined {
         data.mysql?.query
       );
       const sqlData = await this.entitySqlServerRepository.executeQuery(
-        data.sql?.query
+        data.sql?.query,
+        data.mysql?.database
       );
 
       if (!mysqlData || !sqlData) return { mysqlData, sqlData };
