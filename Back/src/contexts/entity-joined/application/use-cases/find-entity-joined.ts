@@ -2,7 +2,10 @@ import { IEntityMysqlRepository } from "../../../entity-mysql/domain/entity-mysq
 import { IEntitySqlServerRepository } from "../../../entity-sql-server/domain/entity-sql-server-repository";
 import { IAppContext } from "../../../shared/domain/app-context/app-context.interface";
 import { errorHandler } from "../../../shared/domain/error/error-handler";
-import { IJoinDataFromTablesParams } from "../../domain/interfaces/join-data-from-tables-params.interface";
+import {
+  IJoinDataFromTablesParams,
+  IJoinDataParams,
+} from "../../domain/interfaces/join-data-from-tables-params.interface";
 
 export class FindEntityJoined {
   private readonly entityMysqlRepository: IEntityMysqlRepository;
@@ -17,20 +20,86 @@ export class FindEntityJoined {
 
   async joinDataFromTables(data: IJoinDataFromTablesParams): Promise<any> {
     try {
-      const mysqlData = await this.entityMysqlRepository.executeQuery(
+      const mysqlQuery = this.entityMysqlRepository.executeQuery(
         data.mysql?.query
       );
-      const sqlData = await this.entitySqlServerRepository.executeQuery(
+      const sqlQuery = this.entitySqlServerRepository.executeQuery(
         data.sql?.query,
-        data.mysql?.database
+        data.sql?.database
       );
 
-      if (!mysqlData || !sqlData) return { mysqlData, sqlData };
+      const mysqlData = await mysqlQuery;
+      const sqlData = await sqlQuery;
 
-      // Add code to join tables
-      return { mysqlData, sqlData };
+      if (!mysqlData || !sqlData) {
+        return mysqlData.length ? mysqlData : sqlData;
+      }
+
+      const joinedData = this.joinData({
+        sql: {
+          result: sqlData,
+          fk: data.sql!.fk,
+        },
+        mysql: {
+          result: mysqlData,
+          fk: data.mysql!.fk,
+        },
+      });
+      return joinedData;
     } catch (error) {
       throw errorHandler(error);
     }
+  }
+
+  joinData({ mysql, sql }: IJoinDataParams) {
+    const left = sql?.result ?? [];
+    const right = mysql?.result ?? [];
+    const leftKey = sql?.fk;
+    const rightKey = mysql?.fk;
+
+    const toKey = (v: any): string | null => {
+      if (v === null || v === undefined) return null;
+      const s = String(v).trim().toLowerCase();
+      return s === "" ? null : s;
+    };
+
+    const rightMap = new Map<string, number[]>();
+    const rightVisited = new Array<boolean>(right.length).fill(false);
+
+    right.forEach((row, i) => {
+      const k = toKey(row?.[rightKey]);
+      if (k !== null) {
+        const arr = rightMap.get(k);
+        if (arr) arr.push(i);
+        else rightMap.set(k, [i]);
+      }
+    });
+
+    const full: any[] = [];
+    const left_only: any[] = [];
+    const right_only: any[] = [];
+
+    for (const a of left) {
+      const k = toKey(a?.[leftKey]);
+
+      if (k !== null) {
+        const matches = rightMap.get(k);
+        if (matches?.length) {
+          for (const ri of matches) {
+            full.push({
+              ...a,
+              ...right[ri],
+            });
+            rightVisited[ri] = true;
+          }
+        } else left_only.push({ ...a });
+      } else left_only.push({ ...a });
+    }
+
+    right.forEach((b, i) => {
+      if (!rightVisited[i]) right_only.push({ ...b });
+    });
+
+    return { full, left_only, right_only };
   }
 }

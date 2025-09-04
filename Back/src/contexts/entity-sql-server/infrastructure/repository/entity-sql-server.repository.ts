@@ -19,10 +19,18 @@ export class EntitySqlServerRepository implements IEntitySqlServerRepository {
       const req = await this.Entity(database);
       const res = await req.query(query);
 
-      return res.recordsets;
+      return this.queryResultToRows(res);
     } catch (error) {
       throw errorHandler(error, { callback: () => this.executeQuery(query) });
     }
+  }
+
+  async queryResultToRows(res: any): Promise<any[]> {
+    if (res.recordsets?.length) {
+      const last = [...res.recordsets].reverse().find((rs) => rs) ?? [];
+      return last;
+    }
+    return res.recordset ?? [];
   }
 
   async findAllTables(database?: string): Promise<any> {

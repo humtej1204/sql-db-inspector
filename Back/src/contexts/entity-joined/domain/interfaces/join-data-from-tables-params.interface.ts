@@ -8,3 +8,13 @@ export interface IDatabaseParams {
   fk: string;
   database?: string;
 }
+
+export interface IJoinDataParams {
+  sql: IDataParams;
+  mysql: IDataParams;
+}
+
+export interface IDataParams {
+  result: any[];
+  fk: string;
+}

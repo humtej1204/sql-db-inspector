@@ -46,6 +46,7 @@ export class MySQL {
         authPlugins: {
           mysql_clear_password: () => () => Buffer.from(token),
         },
+        multipleStatements: true,
       };
 
       if (expiresOnTimestamp) {

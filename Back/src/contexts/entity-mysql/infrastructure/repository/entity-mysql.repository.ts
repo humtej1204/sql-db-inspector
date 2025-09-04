@@ -29,10 +29,25 @@ export class EntityMysqlRepository implements IEntityMysqlRepository {
       if (!query) return null;
       const [res] = await this.Entity.query(query);
 
-      return res;
+      return this.queryResultToRows(res);
     } catch (error) {
       throw errorHandler(error, { callback: () => this.executeQuery(query) });
     }
+  }
+
+  async queryResultToRows(res: any): Promise<any[]> {
+    if (Array.isArray(res)) {
+      const looksLikeRowset =
+        res.length === 0 ||
+        (typeof res[0] === "object" &&
+          !Array.isArray(res[0]) &&
+          !("affectedRows" in res[0]));
+      if (looksLikeRowset) return res;
+
+      const rowsets = res.filter(Array.isArray);
+      if (rowsets.length) return rowsets.at(-1) ?? [];
+    }
+    return [];
   }
 
   async findSchemas(options?: IFindSchemasOptionsParams): Promise<any> {
