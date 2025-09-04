@@ -1,3 +1,8 @@
+export interface IListDatabasesResponse {
+  key: string;
+  name: string;
+}
+
 export interface IGetAllTablesResponse {
   schema: string;
   table: string;

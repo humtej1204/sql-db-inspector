@@ -3,9 +3,20 @@
     <input matInput (keyup)="applyFilter($event)" placeholder="Busca una tabla" #input />
   </mat-form-field>
 
+  @if (selectedDBEngine === 'boost') {
+  <mat-form-field appearance="outline" class="field">
+    <mat-label>Seleccione DB</mat-label>
+    <mat-select (selectionChange)="onDBChange($event)">
+      @for (item of databaseList; track $index) {
+      <mat-option [value]="item.key">{{ item.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  }
+
   <mat-form-field appearance="outline" class="field form_selected_db">
     <mat-label>Seleccione DB</mat-label>
-    <mat-select (selectionChange)="onDBChange($event)" value="boost">
+    <mat-select (selectionChange)="onDBEngineChange($event)" value="boost">
       <mat-option value="boost">Boost - SQL Server</mat-option>
       <mat-option value="bare">Bare - MySQL</mat-option>
     </mat-select>

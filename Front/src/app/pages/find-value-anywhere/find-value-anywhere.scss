@@ -2,36 +2,33 @@
   padding: 48px 32px;
   display: flex;
   flex-direction: column;
-  gap: 48px;
-  flex: 1;
+  gap: 16px;
+  flex: 1 0 auto;
 }
 
 .form {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+
+  .main,
+  .others {
+    display: flex;
+    gap: 12px;
+  }
 
   .form_value {
-    grid-column: span 6;
+    width: 60%;
   }
 
   .form_schema {
-    grid-column: span 3;
-  }
-
-  .form_search_mode {
-    grid-column: 1 / span 4;
-  }
-
-  .form_selected_db {
-    grid-column: 5 / span 4;
+    width: 40%;
   }
 
   button {
     margin-top: 6px;
     justify-self: end;
     height: 48px;
-    width: 120px;
+    width: 25%;
   }
 }
 
@@ -82,6 +79,8 @@
 
   mat-card-title {
     font-size: 1rem;
+    word-wrap: break-word;
+    width: 235px;
   }
 
   mat-card-subtitle {
@@ -110,7 +109,7 @@
 }
 
 .card_empty {
-  flex: 1;
+  flex: 1 0 auto;
   background-color: white;
   display: flex;
   justify-content: center;

@@ -1,36 +1,51 @@
 <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
-  <mat-form-field appearance="outline" class="field form_value">
-    <mat-label>Valor a buscar</mat-label>
-    <input matInput formControlName="value" required />
-    @if (form.controls['value'].hasError('required')) {
-    <mat-error> El valor es obligatorio </mat-error>
+  <div class="main">
+    <mat-form-field appearance="outline" class="field form_value">
+      <mat-label>Valor a buscar</mat-label>
+      <input matInput formControlName="value" required />
+      @if (form.controls['value'].hasError('required')) {
+      <mat-error> El valor es obligatorio </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="field form_schema">
+      <mat-label>Schema</mat-label>
+      <input matInput formControlName="schema" />
+    </mat-form-field>
+  </div>
+
+  <div class="others">
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Modo de búsqueda</mat-label>
+      <mat-select formControlName="searchMode">
+        <mat-option value="contains">Contiene</mat-option>
+        <mat-option value="equals">Igual</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    @if (form.get('selectedEngine')?.value === 'boost') {
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Seleccione DB</mat-label>
+      <mat-select formControlName="database">
+        @for (item of databaseList; track $index) {
+        <mat-option [value]="item.key">{{ item.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     }
-  </mat-form-field>
 
-  <mat-form-field appearance="outline" class="field form_schema">
-    <mat-label>Schema</mat-label>
-    <input matInput formControlName="schema" />
-  </mat-form-field>
+    <mat-form-field appearance="outline" class="field">
+      <mat-label>Seleccione Motor de Busqueda</mat-label>
+      <mat-select formControlName="selectedEngine">
+        <mat-option value="boost">Boost - SQL Server</mat-option>
+        <mat-option value="bare">Bare - MySQL</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline" class="field form_search_mode">
-    <mat-label>Modo de búsqueda</mat-label>
-    <mat-select formControlName="searchMode">
-      <mat-option value="contains">Contiene</mat-option>
-      <mat-option value="equals">Igual</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="outline" class="field form_selected_db">
-    <mat-label>Seleccione DB</mat-label>
-    <mat-select formControlName="selectedDB">
-      <mat-option value="boost">Boost - SQL Server</mat-option>
-      <mat-option value="bare">Bare - MySQL</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <button matButton="filled" type="submit" [disabled]="form.invalid || loading()">
-    {{ loading() ? 'Buscando…' : 'Buscar' }}
-  </button>
+    <button matButton="filled" type="submit" [disabled]="form.invalid || loading()">
+      {{ loading() ? 'Buscando…' : 'Buscar' }}
+    </button>
+  </div>
 </form>
 
 @if (source.length && !loading()) {

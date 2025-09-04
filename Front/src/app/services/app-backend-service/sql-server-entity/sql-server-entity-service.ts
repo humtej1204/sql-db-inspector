@@ -12,6 +12,7 @@ import {
   IGetTablesRelationsResponse,
   IGetTableRelationsByNameResponse,
   IFindValueAnywhereResponse,
+  IListDatabasesResponse,
 } from '../interfaces/response.interface';
 
 @Injectable({
@@ -23,23 +24,42 @@ export class SqlServerEntityService {
 
   private readonly http = inject(HttpClient);
 
-  getAllTables() {
+  listDatabases() {
+    const uri = `${this.uriBase}/${this.basePath}/find-database-list`;
+
+    return this.http.get<ICommonBackendResponse<IListDatabasesResponse[]>>(uri);
+  }
+
+  getAllTables(database?: string) {
     const uri = `${this.uriBase}/${this.basePath}/find-tables`;
-    return this.http.get<ICommonBackendResponse<IGetAllTablesResponse[]>>(uri);
+    const params = database ? { database } : undefined;
+
+    return this.http.get<ICommonBackendResponse<IGetAllTablesResponse[]>>(uri, {
+      params,
+    });
   }
 
-  getBaseTables() {
+  getBaseTables(database?: string) {
     const uri = `${this.uriBase}/${this.basePath}/find-base-tables`;
-    return this.http.get<ICommonBackendResponse<IGetBaseTablesResponse[]>>(uri);
+    const params = database ? { database } : undefined;
+
+    return this.http.get<ICommonBackendResponse<IGetBaseTablesResponse[]>>(uri, {
+      params,
+    });
   }
 
-  getTablesRelations() {
+  getTablesRelations(database?: string) {
     const uri = `${this.uriBase}/${this.basePath}/find-tables-relations`;
-    return this.http.get<ICommonBackendResponse<IGetTablesRelationsResponse[]>>(uri);
+    const params = database ? { database } : undefined;
+
+    return this.http.get<ICommonBackendResponse<IGetTablesRelationsResponse[]>>(uri, {
+      params,
+    });
   }
 
   getTableRelationsByName(data: IGetTableRelationsByNameParams) {
     const uri = `${this.uriBase}/${this.basePath}/find-tables-relations/by-name`;
+
     return this.http.get<ICommonBackendResponse<IGetTableRelationsByNameResponse>>(uri, {
       params: new HttpParams({ fromObject: data ?? {} }),
     });
@@ -47,6 +67,7 @@ export class SqlServerEntityService {
 
   findValueAnywhere(data: IFindValueAnywhereParams) {
     const uri = `${this.uriBase}/${this.basePath}/find-value-anywhere`;
+
     return this.http.get<ICommonBackendResponse<IFindValueAnywhereResponse[]>>(uri, {
       params: new HttpParams({ fromObject: data ?? {} }),
     });

@@ -38,7 +38,7 @@ export class ListAllTables implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.globalStore.getNewTableList().subscribe((data) => {
+    this.globalStore.getTableList().subscribe((data) => {
       this.allTables = data;
       this.handleShowEmptyTables();
     });

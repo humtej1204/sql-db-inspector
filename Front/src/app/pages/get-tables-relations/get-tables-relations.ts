@@ -10,13 +10,16 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { SqlServerEntityService } from '../../services/app-backend-service/sql-server-entity/sql-server-entity-service';
 import { TableInfo } from './components/table-info/table-info';
-import { IGetTablesRelationsResponse } from '../../services/app-backend-service/interfaces/response.interface';
-import { MatTabsModule } from '@angular/material/tabs';
+import {
+  IGetTablesRelationsResponse,
+  IListDatabasesResponse,
+} from '../../services/app-backend-service/interfaces/response.interface';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MySqlEntityService } from '../../services/app-backend-service/mysql-entity/mysql-entity-service';
 import { ICommonBackendResponse } from '../../services/interfaces/common-backend-response.interface';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { GlobalStore } from '../../stores/global-store';
 
 @Component({
   selector: 'app-get-tables-relations',
@@ -44,13 +47,29 @@ export class GetTablesRelations implements OnInit {
   protected data: IGetTablesRelationsResponse[] = [];
   protected source = new MatTableDataSource<IGetTablesRelationsResponse>();
   protected expandedElement!: IGetTablesRelationsResponse | null;
+  protected databaseList: IListDatabasesResponse[] = [];
+  protected selectedDB: string = 'system-Alongside';
+  protected selectedDBEngine: string = 'boost';
   protected showEmptyTables = false;
   protected loading = signal(false);
 
   constructor(
     private readonly sqlServerEntityServ: SqlServerEntityService,
-    private readonly mySqlEntityServ: MySqlEntityService
+    private readonly mySqlEntityServ: MySqlEntityService,
+    private readonly globalStore: GlobalStore
   ) {}
+
+  ngOnInit(): void {
+    this.source.filterPredicate = this.createFilterPredicate();
+    this.listSQLDatabases();
+    this.getData();
+  }
+
+  listSQLDatabases() {
+    this.globalStore.getSQLDatabaseList().subscribe((res) => {
+      this.databaseList = res;
+    });
+  }
 
   getcolumnHeader(column: string) {
     const columnsData: Record<string, string> = {
@@ -62,13 +81,35 @@ export class GetTablesRelations implements OnInit {
     return columnsData[column] ?? '';
   }
 
-  ngOnInit(): void {
-    this.getData();
-  }
-
   handleShowEmptyTables() {
     if (!this.showEmptyTables) this.source.data = this.data.filter((e) => e.rows > 0);
     else this.source.data = this.data;
+  }
+
+  private normalize(v: unknown): string {
+    return (v ?? '')
+      .toString()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
+  }
+
+  private createFilterPredicate() {
+    return (row: IGetTablesRelationsResponse, rawFilter: string): boolean => {
+      const filter = this.normalize(rawFilter).trim();
+      if (!filter) return true;
+
+      const schema = this.normalize(row.schema);
+      const table = this.normalize(row.table);
+      const name = this.normalize(row.name);
+
+      const fieldsCols = this.normalize(row.fields?.map((f) => f.column).join(' ') ?? '');
+
+      const haystack = `${schema} ${table} ${name} ${fieldsCols}`;
+
+      const terms = filter.split(/\s+/);
+      return terms.every((t) => haystack.includes(t));
+    };
   }
 
   applyFilter(event: Event) {
@@ -85,24 +126,29 @@ export class GetTablesRelations implements OnInit {
   }
 
   onDBChange(event: MatSelectChange) {
-    const db = event.value;
-    this.getData(db);
+    this.selectedDB = event.value;
+    this.getData();
   }
 
-  getData(db: string = 'boost') {
+  onDBEngineChange(event: MatSelectChange) {
+    this.selectedDBEngine = event.value;
+    this.getData();
+  }
+
+  getData() {
     this.loading.set(true);
     const request: Record<string, any> = {
-      boost: this.sqlServerEntityServ,
-      bare: this.mySqlEntityServ,
+      boost: this.sqlServerEntityServ.getTablesRelations(this.selectedDB),
+      bare: this.mySqlEntityServ.getTablesRelations(),
     };
 
-    request[db]
-      .getTablesRelations()
-      .subscribe((data: ICommonBackendResponse<IGetTablesRelationsResponse[]>) => {
-        this.data = data.data;
+    request[this.selectedDBEngine].subscribe(
+      (res: ICommonBackendResponse<IGetTablesRelationsResponse[]>) => {
+        this.data = res.data;
         this.handleShowEmptyTables();
 
         this.loading.set(false);
-      });
+      }
+    );
   }
 }
