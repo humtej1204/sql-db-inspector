@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +20,7 @@ import { ICommonBackendResponse } from '../../services/interfaces/common-backend
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GlobalStore } from '../../stores/global-store';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-get-tables-relations',
@@ -37,11 +38,12 @@ import { GlobalStore } from '../../stores/global-store';
     MatSelectModule,
     MatCardModule,
     MatProgressSpinnerModule,
+    MatPaginatorModule,
   ],
   templateUrl: './get-tables-relations.html',
   styleUrl: './get-tables-relations.scss',
 })
-export class GetTablesRelations implements OnInit {
+export class GetTablesRelations implements OnInit, AfterViewInit {
   protected columnsToDisplay: string[] = ['name', 'schema', 'rows'];
   protected columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
   protected data: IGetTablesRelationsResponse[] = [];
@@ -53,6 +55,8 @@ export class GetTablesRelations implements OnInit {
   protected showEmptyTables = false;
   protected loading = signal(false);
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   constructor(
     private readonly sqlServerEntityServ: SqlServerEntityService,
     private readonly mySqlEntityServ: MySqlEntityService,
@@ -63,6 +67,10 @@ export class GetTablesRelations implements OnInit {
     this.source.filterPredicate = this.createFilterPredicate();
     this.listSQLDatabases();
     this.getData();
+  }
+
+  ngAfterViewInit() {
+    this.source.paginator = this.paginator;
   }
 
   listSQLDatabases() {
@@ -84,6 +92,8 @@ export class GetTablesRelations implements OnInit {
   handleShowEmptyTables() {
     if (!this.showEmptyTables) this.source.data = this.data.filter((e) => e.rows > 0);
     else this.source.data = this.data;
+
+    this.source.paginator = this.paginator;
   }
 
   private normalize(v: unknown): string {
@@ -115,6 +125,10 @@ export class GetTablesRelations implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.source.filter = filterValue.trim().toLowerCase();
+
+    if (this.source.paginator) {
+      this.source.paginator.firstPage();
+    }
   }
 
   isExpanded(element: IGetTablesRelationsResponse) {
