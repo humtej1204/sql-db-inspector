@@ -53,7 +53,6 @@ export class JoinEntities implements OnInit {
       .subscribe({
         next: (res) => {
           this.queryResult = res.data;
-          console.log(res);
         },
         error: (err) => {
           console.error(err);

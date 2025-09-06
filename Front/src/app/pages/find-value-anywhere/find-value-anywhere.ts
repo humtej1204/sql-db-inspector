@@ -106,7 +106,7 @@ export class FindValueAnywhere implements OnInit {
         this.loading.set(false);
       },
       (error: any) => {
-        console.log(error);
+        console.error(error);
         this.loading.set(false);
       }
     );
