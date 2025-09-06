@@ -1,83 +1,58 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { GlobalStore } from '../../stores/global-store';
 import { IListDatabasesResponse } from '../../services/app-backend-service/interfaces/response.interface';
-import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { EntityJoinedService } from '../../services/app-backend-service/entity-joined/entity-joined-service';
 import { finalize } from 'rxjs';
+import { IJoinDataFromTablesParams } from '../../services/app-backend-service/entity-joined/interfaces/params.interface';
+import { QueryForm } from './components/query-form/query-form';
+import { QueryResult } from './components/query-result/query-result';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-join-entities',
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressBarModule,
-    TextFieldModule,
-  ],
+  imports: [CommonModule, QueryForm, QueryResult, MatIconModule, MatStepperModule, MatButtonModule],
   templateUrl: './join-entities.html',
   styleUrl: './join-entities.scss',
 })
 export class JoinEntities implements OnInit {
-  protected loading = signal(false);
-  protected form!: FormGroup;
+  protected loading = false;
   protected databaseList: IListDatabasesResponse[] = [];
-  protected defaultDB: string = 'system-Alongside';
+  protected queryResult: any = [];
 
-  @ViewChild('autosize') autosize!: CdkTextareaAutosize;
+  @ViewChild('stepper') stepper!: MatStepper;
+  @ViewChild('form') form!: QueryForm;
 
   constructor(
     private readonly entityJoinedService: EntityJoinedService,
-    private readonly globalStore: GlobalStore,
-    private readonly fb: FormBuilder
+    private readonly globalStore: GlobalStore
   ) {}
 
   ngOnInit(): void {
     this.listSQLDatabases();
-    this.buildForm();
-  }
-
-  buildForm() {
-    this.form = this.fb.group({
-      sql: this.fb.group({
-        database: ['', Validators.required],
-        query: ['', Validators.required],
-        fk: ['', Validators.required],
-      }),
-      mysql: this.fb.group({
-        query: ['', Validators.required],
-        fk: ['', Validators.required],
-      }),
-    });
   }
 
   listSQLDatabases() {
     this.globalStore.getSQLDatabaseList().subscribe((res) => {
       this.databaseList = res;
-      if (this.databaseList.length)
-        this.form.patchValue({
-          sql: { database: this.defaultDB },
-        });
     });
   }
 
-  onSubmit() {
-    this.loading.set(true);
-    const payload = this.form.getRawValue();
+  onSubmit(payload: IJoinDataFromTablesParams) {
+    this.loading = true;
     this.entityJoinedService
       .joinDataFromTables(payload)
-      .pipe(finalize(() => this.loading.set(false)))
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.stepper.next();
+        })
+      )
       .subscribe({
         next: (res) => {
+          this.queryResult = res.data;
           console.log(res);
         },
         error: (err) => {

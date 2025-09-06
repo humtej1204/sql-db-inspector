@@ -1,0 +1,40 @@
+<form class="container" [formGroup]="form" (ngSubmit)="handleSubmit()">
+  <div class="form">
+    <fieldset class="db_section" formGroupName="sql">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Seleccione DB</mat-label>
+        <mat-select formControlName="database">
+          @for (item of databaseList; track $index) {
+          <mat-option [value]="item.key">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="textarea" appearance="outline">
+        <mat-label>Inserte query</mat-label>
+        <textarea matInput formControlName="query"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Escriba clave foranea</mat-label>
+        <input matInput formControlName="fk" />
+      </mat-form-field>
+    </fieldset>
+
+    <fieldset class="db_section" formGroupName="mysql">
+      <mat-form-field class="textarea" appearance="outline">
+        <mat-label>Inserte query</mat-label>
+        <textarea matInput formControlName="query"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Escriba clave foranea</mat-label>
+        <input matInput formControlName="fk" />
+      </mat-form-field>
+    </fieldset>
+  </div>
+
+  <button matButton="filled" type="submit" [disabled]="form.invalid || loading">
+    {{ loading ? 'Generando data…' : 'Generar' }}
+  </button>
+</form>

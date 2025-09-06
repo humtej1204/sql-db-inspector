@@ -1,0 +1,11 @@
+<mat-tab-group>
+  <mat-tab label="Full Joined">
+    <app-dinamic-table [data]="data.full" />
+  </mat-tab>
+  <mat-tab label="Only Left">
+    <app-dinamic-table [data]="data.left_only" />
+  </mat-tab>
+  <mat-tab label="Only Right">
+    <app-dinamic-table [data]="data.right_only" />
+  </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,45 @@
+:host {
+  display: flex;
+  flex: 1 0 auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1 0 auto;
+  align-items: center;
+
+  button {
+    width: 250px;
+  }
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+  gap: 48px;
+
+  .db_section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    border: none;
+
+    .textarea {
+      flex: 1 0 auto;
+
+      ::ng-deep .mat-mdc-form-field-flex,
+      ::ng-deep .mat-mdc-form-field-infix {
+        height: 100%;
+      }
+
+      textarea {
+        height: 100%;
+      }
+    }
+  }
+}

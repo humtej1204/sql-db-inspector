@@ -1,0 +1,12 @@
+:host {
+  flex: 1 0 auto;
+  display: flex;
+}
+
+mat-tab-group {
+  flex: 1 0 auto;
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    height: 100%;
+  }
+}
