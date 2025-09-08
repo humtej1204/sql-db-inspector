@@ -1,5 +1,5 @@
-<!-- <mat-stepper linear #stepper orientation="vertical"> -->
-<mat-stepper #stepper orientation="vertical">
+<!-- <mat-stepper linear #stepper> -->
+<mat-stepper #stepper>
   <mat-step label="Form" [stepControl]="form.form">
     <div class="step_container">
       <app-query-form
@@ -13,10 +13,34 @@
 
   <mat-step label="Result">
     <div class="step_container result_container">
-      <button class="back_btn" matButton matStepperPrevious>
-        <mat-icon fontIcon="keyboard_backspace"></mat-icon>
-        <span>Atras</span>
-      </button>
+      <div class="actions_container">
+        <button class="back_btn" matButton matStepperPrevious>
+          <mat-icon fontIcon="keyboard_backspace"></mat-icon>
+          <span>Atras</span>
+        </button>
+
+        <div class="download_action">
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>Seleccione tipo de descarga</mat-label>
+            <mat-select (valueChange)="onDownloadTypeChange($event)" [value]="selectedDownloadType">
+              <mat-option value="all">Todo</mat-option>
+              <mat-option value="full_join">Solo uniones</mat-option>
+              <mat-option value="only_left">Solo Boost sin union</mat-option>
+              <mat-option value="only_right">Solo Bare sin union</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button
+            class="download_btn"
+            matButton="filled"
+            [disabled]="loadingDownload"
+            (click)="downloadReport()"
+          >
+            <mat-icon fontIcon="cloud_download"></mat-icon>
+            <span>Descargar</span>
+          </button>
+        </div>
+      </div>
       <app-query-result [data]="queryResult" />
     </div>
   </mat-step>

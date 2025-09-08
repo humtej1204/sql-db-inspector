@@ -8,10 +8,14 @@ export class FileGenerator {
 
   constructor(filename: string, body: unknown) {
     this.body = body;
-    this.filename = filename;
+    this.filename = this.safeFileName(filename);
     this.path = "temp";
 
     this.ensurePathDirectoryExistence();
+  }
+
+  safeFileName(filename: string) {
+    return filename.replace(/[:<>|\\/?*"']/g, "_");
   }
 
   ensurePathDirectoryExistence() {
