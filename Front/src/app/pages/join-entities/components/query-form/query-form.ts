@@ -53,6 +53,11 @@ export class QueryForm implements OnInit {
 
   handleSubmit() {
     const payload = this.form.getRawValue();
+    payload.sql.query = payload.sql.query.trim();
+    payload.sql.fk = payload.sql.fk.trim();
+    payload.mysql.query = payload.mysql.query.trim();
+    payload.mysql.fk = payload.mysql.fk.trim();
+
     this.onSubmit.emit(payload);
   }
 }

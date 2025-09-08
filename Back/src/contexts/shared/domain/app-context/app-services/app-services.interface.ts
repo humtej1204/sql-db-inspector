@@ -1,2 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-export interface IAppServices {}
+import { IStoreService } from "../../services/store.service";
+
+export interface IAppServices {
+  storeService: IStoreService;
+}

@@ -61,6 +61,32 @@ export function Controller<T extends TConstructor>(constructor: T) {
           duration: getDurationInMilliseconds(start),
         };
 
+        if (!result) {
+          const httpCode = HttpCode.EXPECTATION_FAILED;
+          const response = {
+            success: false,
+            kindMessage: "Error during operation",
+            httpCode: httpCode,
+            timeLapse,
+          };
+
+          return res.status(httpCode).json(response);
+        }
+
+        if (result.return_type) {
+          const { file } = result;
+          return res.download(
+            `${file.path}/${file.filename}`,
+            file.filename,
+            (err) => {
+              if (err) {
+                console.error("Error enviando archivo:", err);
+              }
+              file.deleteTempFile();
+            }
+          );
+        }
+
         if (result instanceof AppError) {
           const response = {
             success: false,

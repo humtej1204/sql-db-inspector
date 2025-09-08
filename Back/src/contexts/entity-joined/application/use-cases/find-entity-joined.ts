@@ -2,6 +2,7 @@ import { IEntityMysqlRepository } from "../../../entity-mysql/domain/entity-mysq
 import { IEntitySqlServerRepository } from "../../../entity-sql-server/domain/entity-sql-server-repository";
 import { IAppContext } from "../../../shared/domain/app-context/app-context.interface";
 import { errorHandler } from "../../../shared/domain/error/error-handler";
+import { IStoreService } from "../../../shared/domain/services/store.service";
 import {
   IJoinDataFromTablesParams,
   IJoinDataParams,
@@ -10,12 +11,14 @@ import {
 export class FindEntityJoined {
   private readonly entityMysqlRepository: IEntityMysqlRepository;
   private readonly entitySqlServerRepository: IEntitySqlServerRepository;
+  private readonly storeService: IStoreService;
 
   constructor(private readonly context: IAppContext) {
     this.entityMysqlRepository =
       this.context.repositories.entityMysqlRepository;
     this.entitySqlServerRepository =
       this.context.repositories.entitySqlServerRepository;
+    this.storeService = this.context.services.storeService;
   }
 
   async joinDataFromTables(data: IJoinDataFromTablesParams): Promise<any> {
@@ -45,6 +48,8 @@ export class FindEntityJoined {
           fk: data.mysql!.fk,
         },
       });
+
+      this.storeService.save("REPORT", joinedData);
       return joinedData;
     } catch (error) {
       throw errorHandler(error);

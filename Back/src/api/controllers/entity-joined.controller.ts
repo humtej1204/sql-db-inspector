@@ -24,4 +24,15 @@ export class EntityJoinedController {
       return error;
     }
   }
+
+  async generateReport({ body }: IControllerData) {
+    try {
+      const type = String((body as any)?.type ?? "");
+      const response = await this.entityJoinedUseCases.generateReport(type);
+
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
 }

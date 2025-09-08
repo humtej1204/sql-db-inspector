@@ -12,6 +12,9 @@ class EntityJoinedRouter extends RouterBase<EntityJoinedController> {
     this.router
       .route("/join-data")
       .post(this.controller.joinDataFromTables.bind(this.controller));
+    this.router
+      .route("/generate-report")
+      .post(this.controller.generateReport.bind(this.controller));
   }
 }
 

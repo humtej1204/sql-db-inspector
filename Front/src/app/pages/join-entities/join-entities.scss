@@ -19,5 +19,11 @@ mat-stepper {
     .back_btn {
       width: 100px;
     }
+
+    &.result_container {
+      min-height: 70dvh;
+      height: auto;
+      max-height: 90dvh;
+    }
   }
 }
